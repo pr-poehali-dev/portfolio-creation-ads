@@ -1,15 +1,47 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import Icon from "@/components/ui/icon";
 import { useState } from "react";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("home");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
     document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!name.trim() || !phone.trim()) {
+      toast({
+        title: "Ошибка",
+        description: "Пожалуйста, заполните все поля",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    setTimeout(() => {
+      toast({
+        title: "Заявка отправлена!",
+        description: "Я свяжусь с вами в ближайшее время",
+      });
+      setName("");
+      setPhone("");
+      setIsSubmitting(false);
+    }, 1000);
   };
 
   const services = [
@@ -316,31 +348,85 @@ const Index = () => {
           <Card className="border-2 shadow-xl animate-scale-in overflow-hidden">
             <div className="absolute inset-0 bg-hero-gradient opacity-5" />
             <CardContent className="p-12 relative">
-              <div className="text-center">
-                <Badge className="mb-4">
-                  <Icon name="Mail" size={14} className="mr-1" />
-                  Контакты
-                </Badge>
-                <h2 className="text-4xl font-heading font-bold mb-4">Готовы увеличить прибыль?</h2>
-                <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-                  Запросите бесплатный аудит вашей текущей рекламы. Покажу точки роста и план по увеличению ROI.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                  <Button size="lg" className="bg-hero-gradient hover:opacity-90 transition-opacity">
-                    <Icon name="Send" size={18} className="mr-2" />
-                    Написать в Telegram
-                  </Button>
-                  <Button size="lg" variant="outline">
-                    <Icon name="Mail" size={18} className="mr-2" />
-                    Email: context@pro.ru
-                  </Button>
+              <div>
+                <div className="text-center mb-8">
+                  <Badge className="mb-4">
+                    <Icon name="Mail" size={14} className="mr-1" />
+                    Контакты
+                  </Badge>
+                  <h2 className="text-4xl font-heading font-bold mb-4">Готовы увеличить прибыль?</h2>
+                  <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+                    Запросите бесплатный аудит вашей текущей рекламы. Покажу точки роста и план по увеличению ROI.
+                  </p>
                 </div>
-                <div className="flex items-center justify-center gap-6 pt-6 border-t border-border">
-                  {["Phone", "MessageSquare", "Linkedin"].map((icon) => (
-                    <button key={icon} className="w-12 h-12 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-all flex items-center justify-center">
-                      <Icon name={icon as any} size={20} />
-                    </button>
-                  ))}
+                
+                <form onSubmit={handleSubmit} className="max-w-md mx-auto mb-8">
+                  <div className="space-y-4">
+                    <div className="text-left">
+                      <Label htmlFor="name" className="text-base mb-2 block">
+                        Ваше имя
+                      </Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="Александр"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="h-12 text-base"
+                        required
+                      />
+                    </div>
+                    <div className="text-left">
+                      <Label htmlFor="phone" className="text-base mb-2 block">
+                        Номер телефона
+                      </Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="+7 (999) 123-45-67"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="h-12 text-base"
+                        required
+                      />
+                    </div>
+                    <Button 
+                      type="submit" 
+                      size="lg" 
+                      className="w-full bg-hero-gradient hover:opacity-90 transition-opacity h-12 text-base"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                          Отправка...
+                        </>
+                      ) : (
+                        <>
+                          <Icon name="Send" size={18} className="mr-2" />
+                          Запросить аудит
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-4">Или свяжитесь напрямую:</p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+                    <Button variant="outline" size="sm">
+                      <Icon name="MessageSquare" size={16} className="mr-2" />
+                      Telegram
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Icon name="Mail" size={16} className="mr-2" />
+                      context@pro.ru
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Icon name="Phone" size={16} className="mr-2" />
+                      +7 999 123-45-67
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>
